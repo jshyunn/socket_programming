@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]) {
 	if (argc < 2)
 	{
-		fprintf(stderr, "Error: please enter messages\n");
+		printf("Usage: %s [messages]\n", argv[0]);
 		return -1;
 	}
 
@@ -30,20 +30,15 @@ int main(int argc, char* argv[]) {
 	s_addr.sun_family = AF_UNIX;
 	strcpy(s_addr.sun_path, "./test");
 
-	int connecting;
-
-	connecting = connect(c_fd, (struct sockaddr*)&s_addr, sizeof(s_addr));
-	if (connecting == -1)
+	if (connect(c_fd, (struct sockaddr*)&s_addr, sizeof(s_addr)) == -1)
 	{
 		fprintf(stderr, "Error: cannot connect\n");
 		close(c_fd);
 		return -1;
 	}
+	printf("Connected!");
 
-	int sending;
-
-	sending = sendto(c_fd, buff, BUFF_SIZE, 0, (struct sockaddr*)&s_addr, sizeof(s_addr));
-	if (sending == -1)
+	if (sendto(c_fd, buff, BUFF_SIZE, 0, (struct sockaddr*)&s_addr, sizeof(s_addr)) == -1)
 	{
 		fprintf(stderr, "Error: cannot send messages\n");
 		close(c_fd);
