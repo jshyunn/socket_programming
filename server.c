@@ -4,16 +4,32 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sys/un.h>
+#include <pthread.h>
 
 #define BUFF_SIZE 1024
 #define FILE_PATH "./test"
 #define Error() perror("Error: ");\
 		return -1;
 
+void* send_msg(void* c_fd) {
+	char s_buff[BUFF_SIZE];
+
+	while (1)
+	{
+		printf("You: ");
+		fgets(s_buff, BUFF_SIZE, stdin);
+		if (!write(*(int*)c_fd, s_buff, BUFF_SIZE))
+		{
+			perror("Error: send message");
+		}
+	}
+}
+
 int main(void) {
 	int s_fd, c_fd, c_addr_size;
 	struct sockaddr_un s_addr, c_addr;
-	char c_buff[BUFF_SIZE], s_buff[BUFF_SIZE];
+	char c_buff[BUFF_SIZE];
+	pthread_t send_thread;
 
 	if (!access(FILE_PATH, F_OK))
 		unlink(FILE_PATH);
@@ -49,15 +65,15 @@ int main(void) {
 	}
 	printf("Accept!\n");
 
+	pthread_create(&send_thread, NULL, send_msg, (void*)&c_fd);
 	while (read(c_fd, c_buff, BUFF_SIZE))
 	{
-		printf("Client said : %s", c_buff);
+		printf("\nClient said : %s", c_buff);
 
-		if (!strcmp(c_buff, "bye\n")) break;
-
-		printf("You: ");
-		fgets(s_buff, BUFF_SIZE, stdin);
-		write(c_fd, s_buff, BUFF_SIZE);
+		if (!strcmp(c_buff, "bye\n")) 
+		{
+			break;
+		}
 	}
 	close(c_fd);
 	close(s_fd);
