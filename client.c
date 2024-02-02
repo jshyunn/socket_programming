@@ -55,5 +55,9 @@ int main(void) {
 		
 		if (!strcmp(c_buff, "bye\n")) break;
 	}
+	if (shutdown(c_fd, SHUT_RDWR) == -1)
+	{
+		Error();
+	}
 	close(c_fd);
 }

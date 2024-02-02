@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <signal.h>
 
 #define BUFF_SIZE 1024
 #define FILE_PATH "./test"
@@ -29,6 +30,7 @@ int main(void) {
 	int s_fd, c_fd, c_addr_size;
 	struct sockaddr_un s_addr, c_addr;
 	char c_buff[BUFF_SIZE];
+	sigset_t sigset;
 	pthread_t send_thread;
 
 	if (!access(FILE_PATH, F_OK))
@@ -64,16 +66,21 @@ int main(void) {
 		Error();
 	}
 	printf("Accept!\n");
-
+	
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGINT);
+	sigprocmask(SIG_BLOCK, &sigset, (sigset_t*)NULL);
 	pthread_create(&send_thread, NULL, send_msg, (void*)&c_fd);
 	while (read(c_fd, c_buff, BUFF_SIZE))
 	{
 		printf("\nClient said : %s", c_buff);
 
 		if (!strcmp(c_buff, "bye\n")) 
-		{
 			break;
-		}
+	}
+	if (shutdown(c_fd, SHUT_RDWR) == -1)
+	{
+		Error();
 	}
 	close(c_fd);
 	close(s_fd);
