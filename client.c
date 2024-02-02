@@ -7,7 +7,8 @@
 
 #define BUFF_SIZE 1024
 #define FILE_PATH "./test"
-#define Error() perror("Error: ");
+#define Error() perror("Error: ");\
+		return -1;
 
 int main(int argc, char* argv[]) {
 	if (argc < 2)
@@ -37,10 +38,6 @@ int main(int argc, char* argv[]) {
 	}
 	puts("Connected!");
 
-	if (sendto(c_fd, buff, BUFF_SIZE, 0, NULL, sizeof(s_addr)) == -1)
-	{
-		close(c_fd);
-		Error();
-	}
+	write(c_fd, buff, BUFF_SIZE);
 	printf("Send messages: %s\n", buff);
 }

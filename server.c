@@ -7,12 +7,13 @@
 
 #define BUFF_SIZE 1024
 #define FILE_PATH "./test"
-#define Error() perror("Error: ");
+#define Error() perror("Error: ");\
+		return -1;
 
 int main(void) {
-	int s_fd, c_fd, c_addr_size;
+	int s_fd, c_fd, c_addr_size, size=0;
 	struct sockaddr_un s_addr, c_addr;
-	char buf[BUFF_SIZE];
+	char buff[BUFF_SIZE];
 
 	if (!access(FILE_PATH, F_OK))
 		unlink(FILE_PATH);
@@ -48,11 +49,6 @@ int main(void) {
 	}
 	printf("Accept!\n");
 
-	if (recvfrom(c_fd, buf, BUFF_SIZE, 0, NULL, &c_addr_size) == -1)
-	{
-		close(c_fd);
-		close(s_fd);
-		Error();
-	}
-	printf("Client said : %s\n", buf);
+	read(c_fd, buff, BUFF_SIZE);
+	printf("Client said : %s\n", buff);
 }
