@@ -37,7 +37,7 @@ int main(void) {
 		fgets(c_buff, BUFF_SIZE, stdin);
 		write(c_fd, c_buff, BUFF_SIZE);
 
-		if (c_buff == "bye") break;
+		if (!strcmp(c_buff, "bye\n")) break;
 
 		read(c_fd, s_buff, BUFF_SIZE);
 		printf("Server said: %s", s_buff);

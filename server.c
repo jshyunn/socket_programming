@@ -49,12 +49,11 @@ int main(void) {
 	}
 	printf("Accept!\n");
 
-	while (1)
+	while (read(c_fd, c_buff, BUFF_SIZE))
 	{
-		read(c_fd, c_buff, BUFF_SIZE);
 		printf("Client said : %s", c_buff);
-		
-		if (c_buff == "bye") break;
+
+		if (!strcmp(c_buff, "bye\n")) break;
 
 		printf("You: ");
 		fgets(s_buff, BUFF_SIZE, stdin);
