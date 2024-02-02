@@ -10,18 +10,11 @@
 #define Error() perror("Error: ");\
 		return -1;
 
-int main(int argc, char* argv[]) {
-	if (argc < 2)
-	{
-		printf("Usage: %s [messages]\n", argv[0]);
-		return -1;
-	}
-
+int main(void) {
 	int c_fd;
 	struct sockaddr_un s_addr;
-	char buff[BUFF_SIZE];
+	char s_buff[BUFF_SIZE], c_buff[BUFF_SIZE];
 
-	strcpy(buff, argv[1]);
 	c_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (c_fd == -1)
 	{
@@ -37,7 +30,17 @@ int main(int argc, char* argv[]) {
 		Error();
 	}
 	puts("Connected!");
+	
+	while (1)
+	{
+		printf("You: ");
+		fgets(c_buff, BUFF_SIZE, stdin);
+		write(c_fd, c_buff, BUFF_SIZE);
 
-	write(c_fd, buff, BUFF_SIZE);
-	printf("Send messages: %s\n", buff);
+		if (c_buff == "bye") break;
+
+		read(c_fd, s_buff, BUFF_SIZE);
+		printf("Server said: %s", s_buff);
+	}
+	close(c_fd);
 }

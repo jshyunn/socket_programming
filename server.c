@@ -11,9 +11,9 @@
 		return -1;
 
 int main(void) {
-	int s_fd, c_fd, c_addr_size, size=0;
+	int s_fd, c_fd, c_addr_size;
 	struct sockaddr_un s_addr, c_addr;
-	char buff[BUFF_SIZE];
+	char c_buff[BUFF_SIZE], s_buff[BUFF_SIZE];
 
 	if (!access(FILE_PATH, F_OK))
 		unlink(FILE_PATH);
@@ -49,6 +49,17 @@ int main(void) {
 	}
 	printf("Accept!\n");
 
-	read(c_fd, buff, BUFF_SIZE);
-	printf("Client said : %s\n", buff);
+	while (1)
+	{
+		read(c_fd, c_buff, BUFF_SIZE);
+		printf("Client said : %s", c_buff);
+		
+		if (c_buff == "bye") break;
+
+		printf("You: ");
+		fgets(s_buff, BUFF_SIZE, stdin);
+		write(c_fd, s_buff, BUFF_SIZE);
+	}
+	close(c_fd);
+	close(s_fd);
 }
