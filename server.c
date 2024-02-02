@@ -6,34 +6,36 @@
 #include <sys/un.h>
 
 #define BUFF_SIZE 1024
+#define FILE_PATH "./test"
+#define Error() perror("Error: ");
 
 int main(void) {
-	int s_fd, c_fd, c_addr_size, ret;
+	int s_fd, c_fd, c_addr_size;
 	struct sockaddr_un s_addr, c_addr;
 	char buf[BUFF_SIZE];
 
+	if (!access(FILE_PATH, F_OK))
+		unlink(FILE_PATH);
+	
 	s_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s_fd == -1)
 	{
-		fprintf(stderr, "Error: cannot create socket\n"); 
-		return -1;
+		Error();
 	}
 
 	memset(&s_addr, 0, sizeof(s_addr));
 	s_addr.sun_family = AF_UNIX;
-	strcpy(s_addr.sun_path, "./test");
+	strcpy(s_addr.sun_path, FILE_PATH);
 	if (bind(s_fd, (struct sockaddr*)&s_addr, sizeof(s_addr)) == -1)
 	{
-		fprintf(stderr, "Error: cannot bind socket\n");
 		close(s_fd);
-		return -1;
+		Error();
 	}	
 
 	if (listen(s_fd, 5) == -1)
 	{
-		fprintf(stderr, "Error: cannont listen\n");
 		close(s_fd);
-		return -1;
+		Error();
 	}
 	printf("Listening...\n");
 
@@ -41,19 +43,16 @@ int main(void) {
 	c_fd = accept(s_fd, (struct sockaddr*)&c_addr, &c_addr_size);
 	if (c_fd == -1)
 	{
-		fprintf(stderr, "Error: cannot accept\n");
 		close(s_fd);
-		return -1;
+		Error();
 	}
 	printf("Accept!\n");
 
-	ret = recvfrom(s_fd, buf, BUFF_SIZE, 0, (struct sockaddr*)&c_addr, &c_addr_size);
-	if (ret == -1)
+	if (recvfrom(c_fd, buf, BUFF_SIZE, 0, NULL, &c_addr_size) == -1)
 	{
-		fprintf(stderr, "Error : cannot receive\n");
 		close(c_fd);
 		close(s_fd);
-		return ret;
+		Error();
 	}
 	printf("Client said : %s\n", buf);
 }
